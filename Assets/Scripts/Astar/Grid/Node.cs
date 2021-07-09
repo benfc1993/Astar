@@ -2,9 +2,9 @@ using UnityEngine;
 
 namespace Astar.Grid
 {
-    public class Node
+    public class Node : IHeapItem<Node>
     {
-        public bool walkable;
+        public readonly bool walkable;
         public Vector3 worldPosition;
         public Node parent;
 
@@ -14,14 +14,25 @@ namespace Astar.Grid
         public int gCost;
         public int hCost;
 
-        public int fCost => gCost + hCost;
+        int FCost => gCost + hCost;
+
+        public int HeapIndex { get; set; }
 
         public Node(bool walkable, Vector3 worldPosition, int gridX, int gridY)
         {
             this.walkable = walkable;
             this.worldPosition = worldPosition;
-            this.GridX = gridX;
-            this.GridY = gridY;
+            GridX = gridX;
+            GridY = gridY;
         }
+
+        public int CompareTo(Node toCompare)
+        {
+            int compare = FCost.CompareTo((toCompare.FCost));
+            if(compare == 0)
+                compare = hCost.CompareTo(toCompare.hCost);
+            return -compare;
+        }
+
     }
 }

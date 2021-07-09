@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using Astar.Grid;
 using UnityEngine;
 
@@ -15,36 +15,31 @@ namespace Astar.Pathfinding
 
         private void Update()
         {
-            FindPath(seeker.position, target.position);
+            if(Input.GetButtonDown("Jump"))
+                FindPath(seeker.position, target.position);
         }
 
         private void FindPath(Vector3 startPoint, Vector3 targetPoint)
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             Node startNode = _grid.NodeFromWorldPoint(startPoint);
             Node targetNode = _grid.NodeFromWorldPoint(targetPoint);
 
-            List<Node> openSet = new List<Node>();
+            Heap<Node> openSet = new Heap<Node>(_grid.MaxSize);
             HashSet<Node> closedSet = new HashSet<Node>();
-            
+
             openSet.Add((startNode));
 
             while (openSet.Count > 0)
             {
-                Node currentNode = openSet[0];
-                for (int i = 0; i < openSet.Count; i++)
-                {
-                    if (openSet[i].fCost < currentNode.fCost ||
-                        openSet[i].fCost == currentNode.fCost && openSet[i].hCost < currentNode.hCost)
-                    {
-                        currentNode = openSet[i];
-                    }
-                }
-
-                openSet.Remove(currentNode);
+                Node currentNode = openSet.RemoveFirst();
                 closedSet.Add(currentNode);
 
                 if (currentNode == targetNode)
                 {
+                    sw.Stop();
+                    print($"path found in {sw.ElapsedMilliseconds}ms");
                     RetracePath(startNode, targetNode);
                     return;
                 }
@@ -58,12 +53,12 @@ namespace Astar.Pathfinding
                         neighbour.gCost = newMovementCost;
                         neighbour.hCost = GetDistance(neighbour, targetNode);
                         neighbour.parent = currentNode;
-                        
+
                         if(!openSet.Contains(neighbour)) openSet.Add(neighbour);
                     }
                 }
             }
-            
+
         }
 
         void RetracePath(Node startNode, Node endNode)
