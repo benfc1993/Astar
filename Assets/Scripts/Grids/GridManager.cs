@@ -1,40 +1,44 @@
 ﻿using Astar.Grid;
 using Astar.Pathfinding;
 using UnityEngine;
+using World;
 
-public class GridManager : MonoBehaviour
+namespace Grids
 {
-    public AStarGrid aStarGrid;
-    public PathRequestManager pathRequestManager;
-    public WorldGrid worldGrid;
-
-    public Transform[] buildingEntrances;
-    void Awake()
+    public class GridManager : MonoBehaviour
     {
-        worldGrid.Init();
-        aStarGrid.Init();
+        public AStarGrid aStarGrid;
+        public PathRequestManager pathRequestManager;
+        public WorldGrid worldGrid;
 
-    }
-
-    void Start()
-    {
-        if (buildingEntrances.Length > 0) AssignEntrancesToGrid();
-        worldGrid.Generate();
-        pathRequestManager.Init();
-    }
-
-    void AssignEntrancesToGrid()
-    {
-        foreach (Transform entrance in buildingEntrances)
+        public Transform[] buildingEntrances;
+        void Awake()
         {
-            var position = entrance.position;
+            worldGrid.Init();
+            aStarGrid.Init();
 
-            var aStarNode = aStarGrid.NodeFromWorldPoint(position);
-            aStarNode.walkable = true;
+        }
 
-            var worldNode = worldGrid.NodeFromWorldPoint(position);
-            worldNode.isBuildingEntrance = true;
-            worldGrid.CreateRoad(worldNode.WorldPosition);
+        void Start()
+        {
+            if (buildingEntrances.Length > 0) AssignEntrancesToGrid();
+            worldGrid.Generate();
+            pathRequestManager.Init();
+        }
+
+        void AssignEntrancesToGrid()
+        {
+            foreach (Transform entrance in buildingEntrances)
+            {
+                var position = entrance.position;
+
+                var aStarNode = aStarGrid.NodeFromWorldPoint(position);
+                aStarNode.walkable = true;
+
+                var worldNode = worldGrid.NodeFromWorldPoint(position);
+                worldNode.isBuildingEntrance = true;
+                worldGrid.CreateRoad(worldNode.WorldPosition);
+            }
         }
     }
 }

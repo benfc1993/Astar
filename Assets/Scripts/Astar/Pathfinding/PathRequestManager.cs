@@ -10,12 +10,12 @@ namespace Astar.Pathfinding
         PathRequest _currentRequest;
         bool _isProcessingPath;
         Pathfinding _pathFinding;
-        static PathRequestManager instance;
+        static PathRequestManager _instance;
         public static event Action OnReady;
 
         void Awake()
         {
-            instance = this;
+            _instance = this;
             _pathFinding = GetComponent<Pathfinding>();
         }
 
@@ -27,13 +27,12 @@ namespace Astar.Pathfinding
 
         public static void RequestPath(Vector3 pathStart, Vector3 pathEnd, Action<Vector3[], bool> callback, bool simplify = true)
         {
-            print("request");
             PathRequest newRequest = new PathRequest(pathStart, pathEnd, callback, simplify);
-            instance._requestQueue.Enqueue(newRequest);
-            instance.TryProcessNext();
+            _instance._requestQueue.Enqueue(newRequest);
+            _instance.TryProcessNext();
         }
 
-        private void TryProcessNext()
+        void TryProcessNext()
         {
             if (!_isProcessingPath && _requestQueue.Count > 0)
             {
@@ -45,7 +44,6 @@ namespace Astar.Pathfinding
 
         public void FinishedProcessingPath(Vector3[] path, bool success)
         {
-            print("finished");
             _currentRequest.callback(path, success);
             _isProcessingPath = false;
             TryProcessNext();

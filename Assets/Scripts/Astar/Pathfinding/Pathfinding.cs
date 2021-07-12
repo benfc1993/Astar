@@ -4,15 +4,16 @@ using System.Diagnostics;
 using Astar.Grid;
 using UnityEngine;
 using System;
+using Utils;
 
 namespace Astar.Pathfinding
 {
     public class Pathfinding : MonoBehaviour
     {
-        private AStarGrid _grid;
+        AStarGrid _grid;
         PathRequestManager _pathRequestManager;
 
-        private void Awake()
+        void Awake()
         {
             _grid = GetComponent<AStarGrid>();
             _pathRequestManager = GetComponent<PathRequestManager>();
@@ -21,7 +22,6 @@ namespace Astar.Pathfinding
 
         public void StartFindPath(Vector3 pathStart, Vector3 pathEnd, bool simplify = true)
         {
-            print("finding path ");
             StartCoroutine(FindPath(pathStart, pathEnd, simplify));
         }
 
@@ -75,7 +75,6 @@ namespace Astar.Pathfinding
                 }
             }
 
-            print(pathSuccess);
             if(pathSuccess)
                 waypoints = RetracePath(startNode, targetNode, simplify);
             _pathRequestManager.FinishedProcessingPath(waypoints, pathSuccess);

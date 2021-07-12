@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 
-namespace Astar.Grid
+namespace Grids
 {
     public interface IGridNode
     {

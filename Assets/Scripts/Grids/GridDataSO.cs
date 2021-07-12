@@ -1,8 +1,11 @@
 ﻿using UnityEngine;
 
-[CreateAssetMenu(fileName = "New Grid Data", menuName = "Grid/Grid Data")]
-public class GridDataSO : ScriptableObject
+namespace Grids
 {
-    public Vector2 gridWorldSize;
-    public float nodeRadius;
+    [CreateAssetMenu(fileName = "New Grid Data", menuName = "Grid/Grid Data")]
+    public class GridDataSO : ScriptableObject
+    {
+        public Vector2 gridWorldSize;
+        public float nodeRadius;
+    }
 }

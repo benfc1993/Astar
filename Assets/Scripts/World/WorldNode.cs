@@ -1,38 +1,41 @@
 ﻿using System;
-using Astar.Grid;
+using Grids;
 using UnityEngine;
 
-[Serializable]
-public class WorldNode : IGridNode
+namespace World
 {
-
-    public WorldNode(int x, int y, Vector3 worldPosition)
+    [Serializable]
+    public class WorldNode : IGridNode
     {
-        X = x;
-        Y = y;
-        WorldPosition = worldPosition;
+
+        public WorldNode(int x, int y, Vector3 worldPosition)
+        {
+            X = x;
+            Y = y;
+            WorldPosition = worldPosition;
+        }
+
+        public int X { get; }
+        public int Y { get; }
+        public Vector3 WorldPosition { get; }
+
+        public TerrainType terrainType = TerrainType.Grass;
+
+        public bool isExit;
+        public bool isBuildingEntrance;
+
+        public void SetTerrainType(TerrainType value)
+        {
+            terrainType = value;
+        }
     }
 
-    public int X { get; }
-    public int Y { get; }
-    public Vector3 WorldPosition { get; }
-
-    public TerrainType terrainType = TerrainType.Grass;
-
-    public bool isExit;
-    public bool isBuildingEntrance;
-
-    public void SetTerrainType(TerrainType value)
+    public enum TerrainType
     {
-        terrainType = value;
+        Grass,
+        Road,
+        Forest,
+        Alley,
+        Water
     }
-}
-
-public enum TerrainType
-{
-    Grass,
-    Road,
-    Forest,
-    Alley,
-    Water
 }
