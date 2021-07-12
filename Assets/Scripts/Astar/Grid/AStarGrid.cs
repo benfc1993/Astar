@@ -1,43 +1,53 @@
 using System.Collections.Generic;
+using Astar.Pathfinding;
 using UnityEngine;
 
 namespace Astar.Grid
 {
     public class AStarGrid : MonoBehaviour
     {
-        public Vector2 gridWorldSize;
-        public float nodeRadius;
+        public GridDataSO gridDataSO;
+        public TerrainTypeSO terrainType;
+        WorldGrid _worldGrid;
+
         public float carveRadius;
         public LayerMask unwalkableLayerMask;
         private Node[,] _grid;
-        public Transform player;
 
         private float _nodeDiameter;
         private int _gridSizeX, _gridSizeY;
-        public List<Node> path;
-        public bool onlyDrawPath;
+        public bool displayGridGizmos;
         public int MaxSize => _gridSizeX * _gridSizeY;
 
-        private void Start()
+        private void Awake()
         {
-            _nodeDiameter = nodeRadius * 2;
-            _gridSizeX = Mathf.RoundToInt((gridWorldSize.x / _nodeDiameter));
-            _gridSizeY = Mathf.RoundToInt((gridWorldSize.y / _nodeDiameter));
+            _worldGrid = GetComponentInParent<GridManager>().worldGrid;
+
+            _nodeDiameter = gridDataSO.nodeRadius * 2;
+            _gridSizeX = Mathf.RoundToInt((gridDataSO.gridWorldSize.x / _nodeDiameter));
+            _gridSizeY = Mathf.RoundToInt((gridDataSO.gridWorldSize.y / _nodeDiameter));
+        }
+
+        public void Init()
+        {
             CreateGrid();
         }
 
         private void CreateGrid()
         {
             _grid = new Node[_gridSizeX, _gridSizeY];
-            Vector3 worldBottomLeft = transform.position - Vector3.right * gridWorldSize.x / 2 - Vector3.forward * gridWorldSize.y / 2;
+            Vector3 worldBottomLeft = transform.position - Vector3.right * gridDataSO.gridWorldSize.x / 2 - Vector3.forward * gridDataSO.gridWorldSize.y / 2;
 
             for (int x = 0; x < _gridSizeX; x++)
             {
                 for (int y = 0; y < _gridSizeY; y++)
                 {
-                    Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * _nodeDiameter + nodeRadius) + Vector3.forward * (y * _nodeDiameter + nodeRadius);
-                    bool walkable = !(Physics.CheckSphere(worldPoint, 2 * nodeRadius + carveRadius, unwalkableLayerMask));
-                    _grid[x, y] = new Node(walkable, worldPoint, x, y);
+                    Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * _nodeDiameter + gridDataSO.nodeRadius) + Vector3.forward * (y * _nodeDiameter + gridDataSO.nodeRadius);
+                    bool walkable = !(Physics.CheckSphere(worldPoint, 2 * gridDataSO.nodeRadius + carveRadius, unwalkableLayerMask));
+
+                    terrainType.terrainTypesDictionary.TryGetValue(_worldGrid.grid[x, y].terrainType,
+                        out int movementPenalty);
+                    _grid[x, y] = new Node(walkable, worldPoint, x, y, movementPenalty);
                 }
             }
         }
@@ -52,10 +62,10 @@ namespace Astar.Grid
                 {
                     if(x == 0 && y == 0) continue;
 
-                    int checkX = node.GridX + x;
-                    int checkY = node.GridY + y;
+                    int checkX = node.X + x;
+                    int checkY = node.Y + y;
 
-                    if(checkX >= 0 && checkX < _gridSizeX && checkY >= 0 && checkX < _gridSizeY) neighbours.Add(_grid[checkX, checkY]);
+                    if(checkX >= 0 && checkX < _gridSizeX && checkY >= 0 && checkY < _gridSizeY) neighbours.Add(_grid[checkX, checkY]);
                 }
             }
 
@@ -64,8 +74,8 @@ namespace Astar.Grid
 
         public Node NodeFromWorldPoint(Vector3 worldPosition)
         {
-            var percentX = (worldPosition.x + gridWorldSize.x / 2) / gridWorldSize.x;
-            var percentY = (worldPosition.z + gridWorldSize.y / 2) / gridWorldSize.y;
+            var percentX = (worldPosition.x + gridDataSO.gridWorldSize.x / 2) / gridDataSO.gridWorldSize.x;
+            var percentY = (worldPosition.z + gridDataSO.gridWorldSize.y / 2) / gridDataSO.gridWorldSize.y;
             percentX = Mathf.Clamp01((percentX));
             percentY = Mathf.Clamp01((percentY));
 
@@ -76,32 +86,14 @@ namespace Astar.Grid
 
         private void OnDrawGizmos()
         {
-            Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x,1, gridWorldSize.y));
+            Gizmos.DrawWireCube(transform.position, new Vector3(gridDataSO.gridWorldSize.x,1, gridDataSO.gridWorldSize.y));
 
-            if (_grid == null) return;
-            Node playerNode = NodeFromWorldPoint(player.position);
-
-            if (onlyDrawPath)
+            if (_grid == null || !displayGridGizmos) return;
+            foreach (Node node in _grid)
             {
-                if (path == null) return;
-                foreach (Node node in path)
-                {
-                    Gizmos.color = Color.cyan;
-                    Gizmos.DrawCube(node.worldPosition, Vector3.one * (_nodeDiameter - .1f));
-                }
+                Gizmos.color = node.walkable ? Color.white : Color.red;
+                Gizmos.DrawCube(node.WorldPosition, Vector3.one * (_nodeDiameter - .1f));
             }
-            else
-            {
-                foreach (Node node in _grid)
-                {
-                    Gizmos.color = node.walkable ? Color.white : Color.red;
-                    if (path != null )
-                        if(path.Contains(node))
-                            Gizmos.color = Color.cyan;
-                    Gizmos.DrawCube(node.worldPosition, Vector3.one * (_nodeDiameter - .1f));
-                }
-            }
-
         }
     }
 }

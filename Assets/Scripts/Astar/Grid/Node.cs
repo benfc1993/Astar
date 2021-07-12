@@ -2,28 +2,31 @@ using UnityEngine;
 
 namespace Astar.Grid
 {
-    public class Node : IHeapItem<Node>
+    public class Node : IHeapItem<Node>, IGridNode
     {
         public readonly bool walkable;
-        public Vector3 worldPosition;
+        public Vector3 WorldPosition { get; }
         public Node parent;
 
-        public int GridX { get; }
-        public int GridY { get; }
+        public int X { get; }
+        public int Y { get; }
 
         public int gCost;
         public int hCost;
+
+        public readonly int movementCost;
 
         int FCost => gCost + hCost;
 
         public int HeapIndex { get; set; }
 
-        public Node(bool walkable, Vector3 worldPosition, int gridX, int gridY)
+        public Node(bool walkable, Vector3 worldPosition, int x, int y, int movementCost)
         {
             this.walkable = walkable;
-            this.worldPosition = worldPosition;
-            GridX = gridX;
-            GridY = gridY;
+            this.WorldPosition = worldPosition;
+            this.X = x;
+            this.Y = y;
+            this.movementCost = movementCost;
         }
 
         public int CompareTo(Node toCompare)
