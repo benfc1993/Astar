@@ -1,5 +1,4 @@
 ﻿using System;
-using Astar;
 using Astar.Grid;
 using UnityEngine;
 
@@ -32,5 +31,5 @@ public enum TerrainType
     Road,
     Forest,
     Alley,
-    Water,
+    Water
 }

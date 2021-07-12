@@ -1,5 +1,4 @@
-﻿using System;
-using Astar.Grid;
+﻿using Astar.Grid;
 using Astar.Pathfinding;
 using UnityEngine;
 

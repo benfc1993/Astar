@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Astar.Pathfinding;
 using UnityEngine;
 
 namespace Astar.Grid
@@ -45,7 +44,7 @@ namespace Astar.Grid
                     Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * _nodeDiameter + gridDataSO.nodeRadius) + Vector3.forward * (y * _nodeDiameter + gridDataSO.nodeRadius);
                     bool walkable = !(Physics.CheckSphere(worldPoint, 2 * gridDataSO.nodeRadius + carveRadius, unwalkableLayerMask));
 
-                    terrainType.terrainTypesDictionary.TryGetValue(_worldGrid.grid[x, y].terrainType,
+                    terrainType.terrainTypesDictionary.TryGetValue(_worldGrid.Grid[x, y].terrainType,
                         out int movementPenalty);
                     _grid[x, y] = new Node(walkable, worldPoint, x, y, movementPenalty);
                 }

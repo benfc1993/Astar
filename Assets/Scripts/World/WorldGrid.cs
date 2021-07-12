@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -9,13 +8,13 @@ public class WorldGrid : MonoBehaviour
     int _gridSizeX;
     int _gridSizeY;
     float _nodeDiameter;
-    public WorldNode[,] grid { get; private set; }
+    public WorldNode[,] Grid { get; private set; }
     public bool drawGizmos;
     public int roadWidth;
     [SerializeField] Vector2 forestSize;
     [SerializeField] int forestCount;
 
-    Vector3 worldBottomLeft;
+    Vector3 _worldBottomLeft;
 
     public void Init()
     {
@@ -37,15 +36,15 @@ public class WorldGrid : MonoBehaviour
         _gridSizeY = Mathf.RoundToInt((gridDataSO.gridWorldSize.y / _nodeDiameter));
 
         if(gridDataSO.gridWorldSize.x <= 0 || gridDataSO.gridWorldSize.y <= 0 || gridDataSO.nodeRadius <= 0) return;
-        grid = new WorldNode[_gridSizeX, _gridSizeY];
-        worldBottomLeft = transform.position - Vector3.right * gridDataSO.gridWorldSize.x / 2 - Vector3.forward * gridDataSO.gridWorldSize.y / 2;
+        Grid = new WorldNode[_gridSizeX, _gridSizeY];
+        _worldBottomLeft = transform.position - Vector3.right * gridDataSO.gridWorldSize.x / 2 - Vector3.forward * gridDataSO.gridWorldSize.y / 2;
 
         for (int x = 0; x < _gridSizeX; x++)
         {
             for (int y = 0; y < _gridSizeY; y++)
             {
-                Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * _nodeDiameter + gridDataSO.nodeRadius) + Vector3.forward * (y * _nodeDiameter + gridDataSO.nodeRadius);
-                grid[x, y] = new WorldNode(x, y, worldPoint);
+                Vector3 worldPoint = _worldBottomLeft + Vector3.right * (x * _nodeDiameter + gridDataSO.nodeRadius) + Vector3.forward * (y * _nodeDiameter + gridDataSO.nodeRadius);
+                Grid[x, y] = new WorldNode(x, y, worldPoint);
             }
         }
 
@@ -64,7 +63,7 @@ public class WorldGrid : MonoBehaviour
             {
                 for (int y = 0; y < forestSize.y; y++)
                 {
-                    Vector3 worldPoint = worldBottomLeft + Vector3.right * ((bottomX + x) * _nodeDiameter + gridDataSO.nodeRadius) + Vector3.forward * (
+                    Vector3 worldPoint = _worldBottomLeft + Vector3.right * ((bottomX + x) * _nodeDiameter + gridDataSO.nodeRadius) + Vector3.forward * (
                         (bottomY + y) * _nodeDiameter + gridDataSO.nodeRadius);
                     NodeFromWorldPoint(new Vector3(worldPoint.x, 0, worldPoint.z)).SetTerrainType(TerrainType.Forest);
                 }
@@ -85,7 +84,7 @@ public class WorldGrid : MonoBehaviour
             for (int i = 0; i < roadWidth; i++)
             {
                 if(posX + i >= _gridSizeX) continue;
-                grid[ posX + i, y].SetTerrainType(TerrainType.Road);
+                Grid[ posX + i, y].SetTerrainType(TerrainType.Road);
             }
         }
 
@@ -96,7 +95,7 @@ public class WorldGrid : MonoBehaviour
             for (int i = 0; i < roadWidth; i++)
             {
                 if(posY + i >= _gridSizeY) continue;
-                grid[x, posY + i].SetTerrainType(TerrainType.Road);
+                Grid[x, posY + i].SetTerrainType(TerrainType.Road);
             }
         }
     }
@@ -118,7 +117,7 @@ public class WorldGrid : MonoBehaviour
 
         int x = Mathf.RoundToInt((_gridSizeX - 1) * percentX);
         int y = Mathf.RoundToInt((_gridSizeY - 1) * percentY);
-        return grid[x, y];
+        return Grid[x, y];
     }
 
     void OnDrawGizmos()
@@ -131,9 +130,9 @@ public class WorldGrid : MonoBehaviour
         {
             for (int y = 0; y < _gridSizeY; y += 1)
             {
-                if(grid[x,y].terrainType != TerrainType.Road && grid[x,y].terrainType != TerrainType.Forest) continue;
-                Gizmos.color = grid[x, y].terrainType != TerrainType.Road ? Color.yellow : Color.green;
-                Gizmos.DrawCube(new Vector3(grid[x, y].WorldPosition.x, 0, grid[x, y].WorldPosition.z), Vector3.one * (_nodeDiameter - 0.1f));
+                if(Grid[x,y].terrainType != TerrainType.Road && Grid[x,y].terrainType != TerrainType.Forest) continue;
+                Gizmos.color = Grid[x, y].terrainType != TerrainType.Road ? Color.yellow : Color.green;
+                Gizmos.DrawCube(new Vector3(Grid[x, y].WorldPosition.x, 0, Grid[x, y].WorldPosition.z), Vector3.one * (_nodeDiameter - 0.1f));
             }
         }
     }

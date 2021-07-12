@@ -43,11 +43,10 @@ public class Heap<T> where T : IHeapItem<T>
         {
             int childIndexLeft = item.HeapIndex * 2 + 1;
             int childIndexRight = item.HeapIndex * 2 + 2;
-            int swapIndex = 0;
 
             if (childIndexLeft < Count)
             {
-                swapIndex = childIndexLeft;
+                int swapIndex = childIndexLeft;
                 if (childIndexRight < Count)
                 {
                     if (_items[childIndexLeft].CompareTo(_items[childIndexRight]) < 0)
