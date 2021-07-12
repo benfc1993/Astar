@@ -19,6 +19,9 @@ public class WorldNode : IGridNode
 
     public TerrainType terrainType = TerrainType.Grass;
 
+    public bool isExit;
+    public bool isBuildingEntrance;
+
     public void SetTerrainType(TerrainType value)
     {
         terrainType = value;

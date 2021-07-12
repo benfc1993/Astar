@@ -4,7 +4,7 @@ namespace Astar.Grid
 {
     public class Node : IHeapItem<Node>, IGridNode
     {
-        public readonly bool walkable;
+        public bool walkable;
         public Vector3 WorldPosition { get; }
         public Node parent;
 
@@ -14,7 +14,7 @@ namespace Astar.Grid
         public int gCost;
         public int hCost;
 
-        public readonly int movementCost;
+        public int movementCost;
 
         int FCost => gCost + hCost;
 
@@ -37,5 +37,9 @@ namespace Astar.Grid
             return -compare;
         }
 
+        public void SetMovementPenalty(int movementPenalty)
+        {
+            movementCost = movementPenalty;
+        }
     }
 }

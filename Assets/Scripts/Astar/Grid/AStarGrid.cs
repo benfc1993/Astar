@@ -83,6 +83,13 @@ namespace Astar.Grid
             return _grid[x, y];
         }
 
+        public void CalculateMovementCost(int x, int y)
+        {
+            terrainType.terrainTypesDictionary.TryGetValue(_worldGrid.Grid[x, y].terrainType,
+                out int movementPenalty);
+            _grid[x,y].SetMovementPenalty(movementPenalty);
+        }
+
         private void OnDrawGizmos()
         {
             Gizmos.DrawWireCube(transform.position, new Vector3(gridDataSO.gridWorldSize.x,1, gridDataSO.gridWorldSize.y));
@@ -94,5 +101,6 @@ namespace Astar.Grid
                 Gizmos.DrawCube(node.WorldPosition, Vector3.one * (_nodeDiameter - .1f));
             }
         }
+
     }
 }

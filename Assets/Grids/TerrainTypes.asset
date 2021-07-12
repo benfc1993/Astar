@@ -16,6 +16,6 @@ MonoBehaviour:
   - type: 1
     cost: 0
   - type: 0
-    cost: 10
+    cost: 10000
   - type: 2
-    cost: 15
+    cost: 10000

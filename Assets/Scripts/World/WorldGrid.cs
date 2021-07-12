@@ -1,9 +1,12 @@
+using System.Collections.Generic;
+using Astar.Pathfinding;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 public class WorldGrid : MonoBehaviour
 {
     public GridDataSO gridDataSO;
+    GridManager _gridManager;
 
     int _gridSizeX;
     int _gridSizeY;
@@ -15,16 +18,18 @@ public class WorldGrid : MonoBehaviour
     [SerializeField] int forestCount;
 
     Vector3 _worldBottomLeft;
+    [SerializeField] List<Vector3> exits = new List<Vector3>();
 
     public void Init()
     {
+        _gridManager = GetComponentInParent<GridManager>();
         CreateGrid();
     }
 
 
     public void Generate()
     {
-        CreateRoads();
+        print("generation");
     }
 
 
@@ -85,6 +90,12 @@ public class WorldGrid : MonoBehaviour
             {
                 if(posX + i >= _gridSizeX) continue;
                 Grid[ posX + i, y].SetTerrainType(TerrainType.Road);
+                if ((y == 0 || y == _gridSizeY - 1) && (i == Mathf.RoundToInt(roadWidth / 2)))
+                {
+                    var node = Grid[posX, y];
+                    node.isExit = true;
+                    exits.Add(node.WorldPosition);
+                }
             }
         }
 
@@ -96,16 +107,37 @@ public class WorldGrid : MonoBehaviour
             {
                 if(posY + i >= _gridSizeY) continue;
                 Grid[x, posY + i].SetTerrainType(TerrainType.Road);
+                if ((x == 0 || x == _gridSizeX - 1) && (i == Mathf.RoundToInt(roadWidth / 2)))
+                {
+                    var node = Grid[x, posY];
+                    node.isExit = true;
+                    exits.Add(node.WorldPosition);
+                }
             }
         }
     }
 
 
-    void CreateRoads()
+    public void CreateRoad(Vector3 worldNode)
     {
-        print("creating roads");
+        var exit = exits[0];
+        print($"create road to {exit}");
+        PathRequestManager.RequestPath(worldNode, exit, TraceRoad, false);
     }
 
+    void TraceRoad(Vector3[] newPath, bool pathSuccessful)
+    {
+        print("here: " + pathSuccessful);
+
+        if (!pathSuccessful) return;
+        print("creating road " + newPath.Length);
+        foreach (Vector3 point in newPath)
+        {
+            var node = NodeFromWorldPoint(point);
+            node.SetTerrainType(TerrainType.Road);
+            _gridManager.aStarGrid.CalculateMovementCost(node.X, node.Y);
+        }
+    }
 
     //TODO: remove duplication of method
     public WorldNode NodeFromWorldPoint(Vector3 worldPosition)
@@ -136,5 +168,4 @@ public class WorldGrid : MonoBehaviour
             }
         }
     }
-
 }

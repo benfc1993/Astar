@@ -25,9 +25,10 @@ namespace Astar.Pathfinding
             OnReady?.Invoke();
         }
 
-        public static void RequestPath(Vector3 pathStart, Vector3 pathEnd, Action<Vector3[], bool> callback)
+        public static void RequestPath(Vector3 pathStart, Vector3 pathEnd, Action<Vector3[], bool> callback, bool simplify = true)
         {
-            PathRequest newRequest = new PathRequest(pathStart, pathEnd, callback);
+            print("request");
+            PathRequest newRequest = new PathRequest(pathStart, pathEnd, callback, simplify);
             instance._requestQueue.Enqueue(newRequest);
             instance.TryProcessNext();
         }
@@ -38,13 +39,14 @@ namespace Astar.Pathfinding
             {
                 _currentRequest = _requestQueue.Dequeue();
                 _isProcessingPath = true;
-                _pathFinding.StartFindPath(_currentRequest.pathStart, _currentRequest.pathEnd);
+                _pathFinding.StartFindPath(_currentRequest.pathStart, _currentRequest.pathEnd, _currentRequest.simplify);
             }
         }
 
-        public void FinishedProcessingPath(Vector3[] path, bool sucess)
+        public void FinishedProcessingPath(Vector3[] path, bool success)
         {
-            _currentRequest.callback(path, sucess);
+            print("finished");
+            _currentRequest.callback(path, success);
             _isProcessingPath = false;
             TryProcessNext();
         }
@@ -54,12 +56,14 @@ namespace Astar.Pathfinding
             public readonly Vector3 pathStart;
             public readonly Vector3 pathEnd;
             public readonly Action<Vector3[], bool> callback;
+            public readonly bool simplify;
 
-            public PathRequest(Vector3 pathStart, Vector3 pathEnd, Action<Vector3[], bool> callback)
+            public PathRequest(Vector3 pathStart, Vector3 pathEnd, Action<Vector3[], bool> callback, bool simplify)
             {
                 this.pathStart = pathStart;
                 this.pathEnd = pathEnd;
                 this.callback = callback;
+                this.simplify = simplify;
             }
         }
 

@@ -19,19 +19,20 @@ namespace Astar.Pathfinding
         }
 
 
-        public void StartFindPath(Vector3 pathStart, Vector3 pathEnd)
+        public void StartFindPath(Vector3 pathStart, Vector3 pathEnd, bool simplify = true)
         {
-            StartCoroutine(FindPath(pathStart, pathEnd));
+            print("finding path ");
+            StartCoroutine(FindPath(pathStart, pathEnd, simplify));
         }
 
-        IEnumerator FindPath(Vector3 startPoint, Vector3 targetPoint)
+        IEnumerator FindPath(Vector3 startPoint, Vector3 targetPoint, bool simplify)
         {
             //TODO: remove for production
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
             Vector3[] waypoints = new Vector3[0];
-            bool pathSucess = false;
+            bool pathSuccess = false;
 
             Node startNode = _grid.NodeFromWorldPoint(startPoint);
             Node targetNode = _grid.NodeFromWorldPoint(targetPoint);
@@ -52,7 +53,7 @@ namespace Astar.Pathfinding
                     {
                         sw.Stop();
                         print($"path found in {sw.ElapsedMilliseconds}ms");
-                        pathSucess = true;
+                        pathSuccess = true;
                         break;
                     }
 
@@ -74,14 +75,16 @@ namespace Astar.Pathfinding
                 }
             }
 
+            print(pathSuccess);
+            if(pathSuccess)
+                waypoints = RetracePath(startNode, targetNode, simplify);
+            _pathRequestManager.FinishedProcessingPath(waypoints, pathSuccess);
             yield return null;
-            if(pathSucess)
-                waypoints = RetracePath(startNode, targetNode);
-            _pathRequestManager.FinishedProcessingPath(waypoints, pathSucess);
         }
 
-        Vector3[] RetracePath(Node startNode, Node endNode)
+        Vector3[] RetracePath(Node startNode, Node endNode, bool simplify)
         {
+
             List<Node> path = new List<Node>();
             Node currentNode = endNode;
 
@@ -91,18 +94,23 @@ namespace Astar.Pathfinding
                 currentNode = currentNode.parent;
             }
 
-            Vector3[] waypoints = SimplifyPath(path);
+            Vector3[] waypoints = SimplifyPath(path, simplify);
             Array.Reverse(waypoints);
             return waypoints;
         }
 
-        Vector3[] SimplifyPath(List<Node> path)
+        Vector3[] SimplifyPath(List<Node> path, bool simplify)
         {
             List<Vector3> waypoints = new List<Vector3>();
             Vector2 directionOld = Vector2.zero;
 
             for (int i = 1; i < path.Count; i++)
             {
+                if (!simplify)
+                {
+                    waypoints.Add(path[i].WorldPosition);
+                    continue;
+                }
                 Vector2 directionNew =
                     new Vector2(path[i - 1].X - path[i].X, path[i - 1].Y - path[i].Y);
                 if (directionOld != directionNew)
